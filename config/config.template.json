@@ -1,0 +1,23 @@
+{
+  "tracker": "gitlab",
+  "defaultBranch": "main",
+  "labels": {
+    "status": ["ready", "blocked", "in-progress", "done"],
+    "sizes": ["S", "M", "L"],
+    "kinds": ["feature", "fix", "refactor", "chore"],
+    "areas": ["web", "admin", "api"]
+  },
+  "verification": {
+    "hasTestRunner": false,
+    "commands": ["bun run build", "bun run lint"],
+    "manual": "agent-browser: open the app, <specific steps for the feature>"
+  },
+  "spec": {
+    "dir": "docs/superpowers/specs",
+    "plansDir": "docs/superpowers/plans"
+  },
+  "language": "en",
+  "branchPrefix": "feat",
+  "issueTemplate": null,
+  "mrTemplate": null
+}
