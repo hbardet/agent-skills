@@ -1,35 +1,32 @@
-# Labels
+# Label vocabulary
 
-Both skills use the same vocabulary. Create missing labels on first use; never invent a new
-label that is not in this list without asking the user.
+Two label prefixes. No size, no area, no dependency labels — the issue body carries that.
 
-## Status (one per issue)
+## status::
 
 | Label | Meaning |
 |---|---|
-| `status::ready` | Spec is clear enough to plan from. |
-| `status::blocked` | Waiting on a dependency or on a missing spec. |
-| `status::in-progress` | An agent has claimed it. |
-| `status::done` | Merged or closed. |
+| `status::ready` | Spec and acceptance criteria are good enough to plan from. |
+| `status::blocked` | Missing information, or waiting on another issue. Needs a `needs spec` note in the body. |
+| `status::in-progress` | Claimed by an agent. Only one in-progress issue per agent at a time. |
+| `status::done` | MR merged. |
 
-## Size
+## kind::
 
-`size::S` (a few files, hours), `size::M` (a day or two), `size::L` (needs its own breakdown).
+| Label | Meaning |
+|---|---|
+| `kind::feature` | New capability or behavior. |
+| `kind::fix` | Corrects a defect. |
+| `kind::refactor` | Internal change with no behavior change. |
+| `kind::chore` | Build, deps, tooling, config, cleanup. |
 
-## Kind
+## Rules
 
-`kind::feature`, `kind::fix`, `kind::refactor`, `kind::chore`.
-
-## Area
-
-`area::<x>` where `<x>` comes from the repo's top-level directories or config. Suggested on first
-run from `ls` of the repo root, excluding dot-directories and dependency directories
-(`node_modules`, `vendor`, `.git`). The user confirms the list once; it is stored in config.
-
-## Creating labels
-
-GitLab: `glab label create <name> --color "#4287f5"`.
-GitHub: `gh label create <name> --color "4287f5"`.
-
-Pick stable colors: status::ready `#2e7d32`, status::blocked `#c62828`, status::in-progress
-`#f9a825`, status::done `#616161`; sizes `#1565c0` / `#6a1b9a` / `#ef6c00`; kinds any neutral blue.
+- Apply exactly one `status::` and one `kind::` label to every issue.
+- If a label does not exist on the tracker, create it on first run using the tracker CLI:
+  - GitLab: `glab label create "status::ready" --color "#428BCA"`
+  - GitHub: `gh label create "status::ready" --color "428BCA"`
+- Rename an existing close-enough label rather than creating a duplicate, and say so in your
+  report.
+- `status::blocked` is set manually. There is no dependency label; ordering or blocking goes in
+  the issue body under **Notes**.

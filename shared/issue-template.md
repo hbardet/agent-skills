@@ -31,11 +31,6 @@ a pasted idea is preserved verbatim as a quote under **Intent**, whatever the la
 
 <!-- What this deliberately does not do, so a plan does not drift into it. -->
 
-## Dependencies
-
-<!-- "Depends on #n" for each blocker. Write the issue number, not only the
-     native tracker relation. -->
-
 ## Verification
 
 <!-- The commands / checks that prove this works. Filled from
@@ -49,5 +44,7 @@ a pasted idea is preserved verbatim as a quote under **Intent**, whatever the la
 
 ## Notes
 
-<!-- Anything else: prior art, constraints, links, screenshots. -->
+<!-- Anything else: prior art, constraints, links, screenshots, and any
+     ordering from the original list (e.g. "do this after #n"). There
+     are no dependency labels — this is where that goes. -->
 ```

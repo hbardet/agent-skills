@@ -28,8 +28,9 @@ git remote -v | grep -oE 'gitlab[^/]*\.|github\.com' | head -1
 | MR | `glab mr create --title "..." --description "..." --target-branch <default> --source-branch <branch>` |
 | MR link | the MR URL returned by `glab mr create`; also `Closes #<n>` in the body auto-closes the issue on merge |
 
-Dependencies: GitLab supports `blocks` / `blocked_by` only on premium tiers. Always write
-`Depends on #n` in the body; add the native relation only when `glab api` reports it is available.
+Dependencies: there are no dependency labels. If the issue body's **Notes** says it waits on
+another issue, check that issue's state before starting; add the native relation only when the
+CLI reports it is available and the user asked for it.
 
 ### GitHub (`gh`)
 
@@ -44,8 +45,9 @@ Dependencies: GitLab supports `blocks` / `blocked_by` only on premium tiers. Alw
 | PR | `gh pr create --title "..." --body "..." --base <default> --head <branch>` |
 | PR link | the PR URL returned by `gh pr create`; `Closes #<n>` in the body auto-closes on merge |
 
-Dependencies: GitHub issue dependencies are available on some plans. Always write `Blocked by #n`
-in the body; add the native dependency only when `gh api` reports it is available.
+Dependencies: there are no dependency labels. If the issue body's **Notes** says it waits on
+another issue, check that issue's state before starting; add the native dependency only when the
+CLI reports it is available and the user asked for it.
 
 ## Rules
 

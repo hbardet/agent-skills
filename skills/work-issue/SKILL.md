@@ -1,112 +1,104 @@
 ---
 name: work-issue
-description: Take a tracker issue from "ready" to a merge request: read the issue, claim it, isolate a worktree, write the implementation plan with superpowers:writing-plans, execute it with superpowers:executing-plans, review it, and open an MR that closes the issue. Use when the user says "work on #12", "implement issue N", "pick the next ticket", "what should I do next", "take this issue", "start on this", "build the next ready issue", or points at a tracker issue and asks for it to be done. GitLab and GitHub.
+description: Implement one tracker issue end to end — read and claim the issue, plan it, build it, review it, and open a merge request. Use when the user says "work on #12", "implement issue 12", "pick the next ticket", "what should I do next", "take this one", or pastes an issue number or URL. Delegates planning to superpowers:writing-plans, execution to superpowers:executing-plans (or subagent-driven-development when a subagent tool exists), and review and branch finishing to executing-plans. GitLab and GitHub. The spec is the issue body; the plan is a comment on the issue.
 ---
 
 # Work issue
 
 Pickup half of the workflow. The other half is `batch-features`.
 
-The plan and the code are superpowers' job. Your job is the wrapper: claim the issue, isolate the
-work, invoke the right superpowers skill in the right order, and close the loop with an MR.
+The spec and the plan never live in the project repo. The spec is the **issue body**. The plan is a
+**comment on the issue** (web-editable) plus a **disposable local copy outside the repo** that
+superpowers' scripts can read. The repo gets code and the MR.
 
-**Announce at start:** "I'm using the work-issue skill to carry #<n> to an MR."
+**Announce at start:** "I'm using the work-issue skill."
 
 ## Setup
 
 `shared/` is the directory next to this skill — `~/.agents/skills/shared/` when installed, or
 `../shared/` in a checkout. If a `shared/...` path does not resolve, use the other one.
 
-1. Read `.agent-skills/config.json` if it exists; otherwise read `shared/config.md`, ask the
-   first-run questions, and write it.
-2. Read `shared/tracker-adapter.md`, `shared/labels.md`, and `shared/mr-template.md`.
-3. Read the repo's `AGENTS.md` (or `CLAUDE.md`). It is binding for commands and gotchas.
+1. Read `.agent-skills/config.json`. If it is missing, say so and point at `shared/config.md`.
+   Do not guess values.
+2. Read `shared/tracker-adapter.md` and `shared/labels.md`.
+3. Detect the tracker and get the issue body with the CLI. Do not invent scope — the issue is the
+   spec, verbatim.
 
-## 1. Read the issue
+## Before you plan
 
-`glab issue view <n>` or `gh issue view <n>`. If the issue has no acceptance criteria, no intent,
-or no verification section, stop and ask the user. Do not invent scope. If the user wants to,
-they can run `batch-features` on the missing parts first.
+**Reject thin specs.** If the issue has no acceptance criteria, no stated intent, or no
+verification path, stop and ask the user before doing anything. Do not file anything back to the
+tracker; the tracker is read-only from this skill. Fixing the spec is the user's call, not yours.
 
-## 2. Claim it
+**Claim the issue.** Set `status::in-progress` and assign it to the current user if the tracker
+supports it. Refuse if the issue already has `status::in-progress`.
 
-- Set `status::in-progress`.
-- Assign it to the current user if the tracker supports it.
-- Refuse if it already has `status::in-progress` (someone else is on it).
+**Check dependencies.** There are no dependency labels. Read the issue body for a **Notes** line
+saying it waits on another issue; if it does and that issue is not done, refuse or switch to
+another ticket. Never silently work a blocked issue.
 
-## 3. Check dependencies
+## Branch and worktree
 
-Read `Depends on #n` lines. If any dependency is not `status::done` (or closed), refuse and propose
-a different ticket. Never start on a blocked issue.
+Invoke `superpowers:using-git-worktrees` to create an isolated worktree and a branch named
+`<prefix>/<iid>-<slug>` per the config (for example `feat/12-<slug>`). If the user prefers to work
+in place, skip the worktree but still create the branch.
 
-## 4. Materialize the spec
+## Plan
 
-`writing-plans` requires a spec path on disk and says executors read both spec and plan. The
-tracker issue is not a local file, so write the issue body to
-`<spec.dir>/YYYY-MM-DD-<slug>-spec.md` (default `docs/superpowers/specs/`). This is the only file
-this skill writes outside the worktree. Do not put it in the worktree — the spec outlives the
-branch.
+Invoke `superpowers:writing-plans` with **the issue as the Spec**. Because the spec is a tracker
+issue and not a file, do the following, in this order:
 
-## 5. Isolate
+1. Write the plan to the disposable local copy:
+   `~/.agent-skills/state/<owner>/<repo>/plans/YYYY-MM-DD-<slug>.md`
+   (`stateDir` from config; outside the repo, never committed).
+2. Post the same plan as a **comment on the issue** — this is the web-editable copy.
+3. The plan header must reference the spec as `GitLab issue #<n>` / `GitHub issue #<n>` plus its
+   URL, **not** a file path. `writing-plans` allows this: "User preferences for plan location
+   override this default."
 
-**REQUIRED SUB-SKILL:** `superpowers:using-git-worktrees` — create a worktree and branch
-`<prefix>/<iid>-<slug>` (`feat/`, `fix/`, `chore/` from config). Never start on the default branch.
+**Verification override.** Read `AGENTS.md` and the config. If the repo has a test runner, the plan
+uses it normally. If it does not, the plan's **Verification** section is the config's
+`verification.commands` plus the manual check from config — never a test framework that does not
+exist, and never a bare "verify it works". You write the plan, so the plan itself carries the
+right commands; `executing-plans` then follows it literally.
 
-## 6. Plan
+## Execute
 
-**REQUIRED SUB-SKILL:** `superpowers:writing-plans` — the materialized spec file is the **Spec**.
-Save the plan to `<plansDir>/YYYY-MM-DD-<slug>.md`.
+Invoke `superpowers:executing-plans` with the disposable local plan path. That skill drives
+task execution and ends with the final whole-branch review and
+`superpowers:finishing-a-development-branch` — so this skill does **not** re-run them; it picks up where
+`executing-plans` left off.
 
-**Verification override.** If the repo has a test runner (`verification.hasTestRunner`), the plan
-uses it normally. If it does not, the plan's verification steps are the config's
-`verification.commands` plus the `verification.manual` check — never a test framework that does
-not exist, and never a bare "verify it works". You are writing the plan, so the plan itself carries
-the right commands; `executing-plans` then follows them literally. Say so in the plan header.
+If the harness has a subagent tool and the user wants per-task review, invoke
+`superpowers:subagent-driven-development` instead. If there is no subagent tool, inline is the
+only option — that matches `executing-plans`' own rule.
 
-Ask the user to review the plan and choose an execution method, as `writing-plans` requires.
+**Sync the plan back.** Before each task, re-read the plan comment on the issue — the user may
+have edited it in the tracker. After each task, write the updated plan back to that comment. If the
+comment changed and the local copy disagrees, follow the comment.
 
-## 7. Execute
+## Finish
 
-**REQUIRED SUB-SKILL:** `superpowers:executing-plans` (default). If the harness has a
-subagent tool and the user wants per-task review, use
-`superpowers:subagent-driven-development` instead; if there is no subagent tool, inline is the
-only option.
+The MR/PR body is the project's template if it has one, otherwise `shared/mr-template.md`, and
+carries the final plan at the end. It links the issue with `Closes #<n>` (both trackers auto-close
+on merge) and lists the deferred minors. Then:
 
-Follow the plan task by task. If a step is wrong, rule and ledger it; do not silently deviate.
+1. Comment on the issue with the MR link and a short summary.
+2. Set `status::done`.
+3. Report the MR link, the issue state, and the rulings.
 
-## 8. Review and finish
+## Next ticket mode
 
-`executing-plans` already performs the final whole-branch review and calls
-`superpowers:finishing-a-development-branch`. **Do not re-run them.** Pick up where `executing-plans` left
-off: open the MR with `superpowers:finishing-a-development-branch`'s guidance.
-
-- Use the project's MR/PR template if it has one, else `shared/mr-template.md`.
-- The MR body includes `Closes #<n>` (both trackers auto-close on merge).
-- Comment on the issue with the MR link and a short summary.
-
-## 9. Report
-
-Print:
-
-- The MR link.
-- The issue state (`status::in-progress` until merge; do not flip to `status::done` yourself).
-- The rulings you made, and any deferred minors.
-- One line: "Merge the MR when you're ready; the issue closes automatically."
-
-## Next-ticket mode
-
-When the user asks "what should I work on next":
-
-1. List issues with `status::ready`.
-2. Drop any with unmet dependencies.
-3. Order by dependencies-then-size.
-4. Propose the top pick with one sentence on why.
-5. Wait for the user to confirm, then run this skill on it.
+When the user says "what should I do next" or "pick the next ticket": list issues with
+`status::ready` in creation order, propose the top pick with one sentence on why, and wait for
+confirmation. There is no size or dependency label to order by, so the list is creation order and
+the user chooses.
 
 ## Hard gates
 
-- Never start on an issue whose spec is thin without asking.
-- Never start on a blocked issue.
-- Never push to the default branch.
-- Never merge or close without the user's explicit go-ahead.
-- Never skip the final whole-branch review (it belongs to `executing-plans`; do not replace it).
+- No branch, commit, or MR without a plan that has **Acceptance criteria** and **Verification**.
+- Never use a test framework the repo does not have.
+- Never close an issue without a human-reviewed MR.
+- Never work an issue that is already `status::in-progress`.
+- Never write the plan or the spec into the project repo.
+- Never silently invent scope: if the issue is thin, stop and ask.

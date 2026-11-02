@@ -31,6 +31,13 @@ specs/                          design docs for the skills themselves
 install.sh                      symlink installer
 ```
 
+## Where the spec and plan live
+
+Neither lives in the project repo. The **spec is the tracker issue body** (read from the
+issue), the **plan is a comment on the issue** (web-editable), plus a disposable local copy under
+`~/.agent-skills/state/<owner>/<repo>/plans/` because superpowers' scripts take a file path.
+The repo gets code and the MR.
+
 ## Tracker support
 
 GitLab (`glab`) and GitHub (`gh`). Detected from `git remote -v`; the per-repo

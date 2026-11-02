@@ -1,6 +1,6 @@
 ---
 name: batch-features
-description: Turn a pasted list of rough feature ideas into well-formed tracker issues, with a per-item debate before anything is filed. Use when the user hands over a batch of ideas, a backlog dump, a list of fixes, or says "file these as issues", "make tickets from this", "turn this list into issues", "batch these features", "create a backlog from this", "I have a list of things to do". Debates each item (restate, ask at most two questions with a proposed default, pin acceptance criteria), shows one review table for the whole batch, and only then files issues with labels and dependencies. GitLab and GitHub.
+description: Turn a pasted list of rough feature ideas into well-formed tracker issues, with a per-item debate before anything is filed. Use when the user hands over a batch of ideas, a backlog dump, a list of fixes, or says "file these as issues", "make tickets from this", "turn this list into issues", "batch these features", "create a backlog from this", "I have a list of things to do". Debates each item (restate, ask at most two questions with a proposed default, pin acceptance criteria), shows one review table for the whole batch, and only then files issues with labels. GitLab and GitHub.
 ---
 
 # Batch features
@@ -38,8 +38,8 @@ Work through the list one item at a time. For each:
 3. **Ask at most two questions.** Each must be specific, and each must carry a default the user
    can accept with one word. Ask the question whose answer would most change what gets built.
    If the user asked for a full grill, ask more; otherwise two.
-4. **Pin the fields:** acceptance criteria (each observable and checkable), size S/M/L, kind,
-   area, and any dependency on another item in this batch.
+4. **Pin two things:** acceptance criteria (each observable and checkable) and kind
+   (`feature` / `fix` / `refactor` / `chore`). Nothing else — no size, no area, no dependencies.
 
 If an item cannot be pinned after the debate, mark it `status::blocked` with a `needs spec` note
 rather than guessing. Filing a vague issue is worse than not filing it.
@@ -51,23 +51,25 @@ Do not move to filing until every item has been debated.
 After the last item, present one table for the whole batch:
 
 ```
-| # | Title | Size | Kind | Area | Depends on |
-|---|-------|------|------|------|------------|
-| 1 | ...   | M    | feature | web | —       |
+| # | Title | Kind |
+|---|-------|------|
+| 1 | ...   | feature |
 ```
 
-Then ask for approval. The user may edit titles, drop items, or change sizes. Nothing is filed
+Then ask for approval. The user may edit titles, drop items, or change kinds. Nothing is filed
 before this approval.
 
 ## File the issues
 
-For each approved item, in dependency order (dependencies first):
+For each approved item, in the order the user prefers (creation order by default):
 
 1. Create the issue with the tracker CLI, body from the project's template if it has one, else
    from `shared/issue-template.md`. Titles and bodies in the config's `language` (default `en`).
-2. Apply labels. Record the issue number.
-3. Add `Depends on #n` to the body of any issue that depends on another.
-4. Report the issue URLs.
+2. Apply labels: `status::ready` and `kind::<kind>`. Record the issue number.
+3. Report the issue URLs.
+
+If the user's list implied an ordering ("X puis Y"), note it in the issue body under **Notes** —
+do not create a dependency relation or label.
 
 If the project has no issue template and the user accepted your offer, commit
 `shared/issue-template.md` to the tracker's expected path once, then file. Do not create it
@@ -78,8 +80,7 @@ silently.
 At the end, print:
 
 - The issue URLs, one line each.
-- The batch summary: N filed, M blocked, the dependency chain if any.
-- The suggested pickup order (dependencies first, then by size).
+- The batch summary: N filed, M blocked.
 - One line: "To start work, say `work-issue <n>`."
 
 ## Hard gates
