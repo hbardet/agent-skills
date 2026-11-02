@@ -24,7 +24,7 @@
 
 ## Review Focus
 
-- **`AGENTS.md` is not at the repo root.** The skill's rule "read `AGENTS.md` at the repo root" fails here. Expected: the skill finds it anyway. Owner: Task 4.
+- **`AGENTS.md` was not at the repo root.** Task 1 adds one. Expected: both skills read it and follow its pointer to `client/web/AGENTS.md`. Owner: Task 4.
 - **No issue or MR template exists.** Expected: the skill offers once to commit `shared/issue-template.md` / `shared/mr-template.md` instead of silently filing a bare body. Owner: Task 2.
 - **No test runner.** Expected: the plan's Verification section says `bun run build`, never "run the tests". Owner: Task 3.
 - **`hbardet-dev` may lack permission** to create labels or issues in `hbardet-work/poc-kitchen-configurator`. Expected: a clear permission error, not a silent skip. Owner: Task 1.
@@ -32,17 +32,38 @@
 
 ---
 
-### Task 1: First-run config and labels
+### Task 1: Repo setup — root AGENTS.md, config, labels
 
 **Files:**
+- Create: `/home/hugo/work/poc-kitchen-configurator/AGENTS.md`
 - Create: `/home/hugo/work/poc-kitchen-configurator/.agent-skills/config.json`
 - Modify: `/home/hugo/work/poc-kitchen-configurator/.gitignore`
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: `.agent-skills/config.json` holding `tracker`, `defaultBranch`, `labels`, `verification`, `stateDir`, `plansDir`, `language`, `branchPrefix`, `issueTemplate`, `mrTemplate`; and 8 GitLab labels.
+- Produces: a root `AGENTS.md` that explains the repo and points to `client/web/AGENTS.md`; `.agent-skills/config.json` holding `tracker`, `defaultBranch`, `labels`, `verification`, `stateDir`, `plansDir`, `language`, `branchPrefix`, `issueTemplate`, `mrTemplate`; and 8 GitLab labels.
 
-- [ ] **Step 1: Ignore the config directory**
+- [ ] **Step 1: Create the root `AGENTS.md`**
+
+The repo root has no `AGENTS.md` today (the only one is `client/web/AGENTS.md`), so both skills
+would miss the project conventions. Create `/home/hugo/work/poc-kitchen-configurator/AGENTS.md`
+with these sections:
+
+- **Layout** — `client/web` is the app (React 19 + TS 5.7 + Vite 6 + Tailwind 4); `admin` is an
+  empty placeholder (`.gitkeep` only). Include the source tree and a table of the UI panel
+  directories under `client/web/src/components/UI/`.
+- **Commands** — run from `client/web` with **bun**: `bun dev`, `bun run build`, `bun run lint`,
+  `bun run preview`. State that no test runner exists and that `bun run build` must run before
+  pushing.
+- **Rules** — never commit to `main`; French conventional commits; dimensions live in
+  `ModuleSelectorPart/modules.json` (43 entries, `widthCm`/`heightCm`/`depthCm`, cm → m in
+  `Scene.tsx`); strings go through `t()`; prices go through `formatPrice(value, lang)`.
+- **CI** — `.gitlab-ci.yml` runs SAST + secret detection only.
+- **Adding a new top-level part** — follow the `admin/` pattern.
+
+The file must state that `client/web/AGENTS.md` is binding for anything inside `client/web`.
+
+- [ ] **Step 2: Ignore the config directory**
 
 Append to `.gitignore`:
 
@@ -51,12 +72,12 @@ Append to `.gitignore`:
 .agent-skills/
 ```
 
-- [ ] **Step 2: Verify the ignore**
+- [ ] **Step 3: Verify the ignore**
 
 Run: `cd /home/hugo/work/poc-kitchen-configurator && git check-ignore -v .agent-skills/config.json`
 Expected: `.gitignore:<line>:.agent-skills/	.agent-skills/config.json`
 
-- [ ] **Step 3: Write the config**
+- [ ] **Step 4: Write the config**
 
 Create `.agent-skills/config.json`:
 
@@ -82,12 +103,12 @@ Create `.agent-skills/config.json`:
 }
 ```
 
-- [ ] **Step 4: Validate the JSON**
+- [ ] **Step 5: Validate the JSON**
 
 Run: `python3 -m json.tool /home/hugo/work/poc-kitchen-configurator/.agent-skills/config.json > /dev/null && echo OK`
 Expected: `OK`
 
-- [ ] **Step 5: Create the 8 labels on GitLab**
+- [ ] **Step 6: Create the 8 labels on GitLab**
 
 ```bash
 cd /home/hugo/work/poc-kitchen-configurator
@@ -97,17 +118,18 @@ for l in status::ready status::blocked status::in-progress status::done \
 done
 ```
 
-- [ ] **Step 6: Verify the labels**
+- [ ] **Step 7: Verify the labels**
 
 Run: `glab label list -R gitlab.com/hbardet-work/poc-kitchen-configurator`
 Expected: 8 labels, each appearing exactly once.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 cd /home/hugo/work/poc-kitchen-configurator
-git add .gitignore
-git commit -m "chore(web): ignore .agent-skills config"
+git checkout -b docs/root-agents-md
+git add AGENTS.md .gitignore
+git commit -m "docs: add root AGENTS.md and ignore .agent-skills"
 ```
 
 ---
@@ -267,9 +289,11 @@ Do **not** merge the MR.
 - Consumes: the defects recorded during Tasks 1-3.
 - Produces: corrected skills, committed and pushed to `github.com/hbardet/agent-skills`.
 
-- [ ] **Step 1: Fix the `AGENTS.md` lookup**
+- [ ] **Step 1: Confirm both skills pick up the root `AGENTS.md`**
 
-The rule "read `AGENTS.md` at the repo root" fails on this repo — it is at `client/web/AGENTS.md`. Change both skills to search the repo for `AGENTS.md` / `CLAUDE.md` (excluding `node_modules`) and record the found path in config as `agentsFile`. Add `agentsFile` to `shared/config.md` and `config/config.template.json`.
+Task 1 added a root `AGENTS.md`. Confirm both skills read it and follow its pointer to
+`client/web/AGENTS.md`. If a skill still assumes the file lives somewhere else, fix the skill —
+do not move the file.
 
 - [ ] **Step 2: Record every other defect found in Tasks 1-3**
 
