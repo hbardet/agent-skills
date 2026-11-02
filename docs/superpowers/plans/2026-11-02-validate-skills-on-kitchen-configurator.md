@@ -123,13 +123,15 @@ done
 Run: `glab label list -R gitlab.com/hbardet-work/poc-kitchen-configurator`
 Expected: 8 labels, each appearing exactly once.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 8: Commit the `.gitignore` change**
+
+The root `AGENTS.md` is already committed on `docs/root-agents-md` (`7a026d3`). Commit the
+`.gitignore` change on the same branch:
 
 ```bash
 cd /home/hugo/work/poc-kitchen-configurator
-git checkout -b docs/root-agents-md
-git add AGENTS.md .gitignore
-git commit -m "docs: add root AGENTS.md and ignore .agent-skills"
+git add .gitignore
+git commit -m "chore(web): ignore .agent-skills config"
 ```
 
 ---
