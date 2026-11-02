@@ -21,11 +21,11 @@ git remote -v | grep -oE 'gitlab[^/]*\.|github\.com' | head -1
 |---|---|
 | List issues | `glab issue list --per-page 100` |
 | Read one | `glab issue view <n>` |
-| File | `glab issue create --title "..." --description "..." --label "..."` |
+| File | `glab issue create --title "..." --description-file <path> --label "..." --yes` |
 | Comment | `glab issue note <n> --message "..."` |
 | Close | `glab issue close <n>` |
-| Labels | `glab label list`, `glab label create <name> --color "#hex"` |
-| MR | `glab mr create --title "..." --description "..." --target-branch <default> --source-branch <branch>` |
+| Labels | `glab label list`, `glab label create -n <name> -c "#hex"` |
+| MR | `glab mr create --title "..." --description-file <path> --target-branch <default> --source-branch <branch>` |
 | MR link | the MR URL returned by `glab mr create`; also `Closes #<n>` in the body auto-closes the issue on merge |
 
 Dependencies: there are no dependency labels. If the issue body's **Notes** says it waits on
@@ -53,7 +53,7 @@ CLI reports it is available and the user asked for it.
 
 - Always read an issue before acting on it; never assume its labels or state.
 - Never claim an issue that already has `status::in-progress`.
-- Always write the dependency in the body, not only in the native field.
+- Use `--description-file` / `--body-file` for anything multi-line; a shell-quoted body breaks.
 - Never push to the default branch; always work on a feature branch.
 - Never merge or close without the user's explicit go-ahead (the `work-issue` skill finishes with
   an MR proposal, not an auto-merge).

@@ -24,7 +24,7 @@ Two label prefixes. No size, no area, no dependency labels — the issue body ca
 
 - Apply exactly one `status::` and one `kind::` label to every issue.
 - If a label does not exist on the tracker, create it on first run using the tracker CLI:
-  - GitLab: `glab label create "status::ready" --color "#428BCA"`
+  - GitLab: `glab label create -n "status::ready" -c "#428BCA"`
   - GitHub: `gh label create "status::ready" --color "428BCA"`
 - Rename an existing close-enough label rather than creating a duplicate, and say so in your
   report.
