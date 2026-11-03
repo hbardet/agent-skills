@@ -146,3 +146,20 @@ The plugin directory name (the slug) comes from the plugin name, which follows t
 connection you created in step 2 — ours is `agent-skill`, so skills land in
 `plugins/agent-skill/skills/<name>/`. The sync also writes `.claude-plugin/`,
 `.cursor-plugin/` and `.agents/plugins/marketplace.json` manifests.
+
+## Verified
+
+2026-11-03 — end-to-end on the real database:
+
+- Local `bash scripts/notion-sync.sh sync` wrote `271a143` to `hbardet/agent-skills@main`
+  (1 plugin, 2 skills, 8 files).
+- Manual dispatch of `sync.yml` in `hbardet/my-skills`: runs `41664369932` and `41664474580`,
+  both `success`, both reporting `✓ Up to date — nothing to write` — and `origin/main` stayed at
+  `1b06cdc`, so a second run is a no-op.
+- Workflow state `active`, `schedule: cron "0 * * * *"` (hourly).
+- `install.sh` from a fresh clone (no `skills/`) links `plugins/agent-skill/skills/{batch-features,work-issue}`
+  and this repo's `shared/`, so `../shared` resolves.
+
+The surprise: Notion shows the database in your workspace language — ours is French, so the title
+property is `Nom de la skill` and the files property `Fichiers`. `scripts/lib/notion-schema.ts`
+resolves them by type, so a rename or a locale change cannot break the pipeline.
