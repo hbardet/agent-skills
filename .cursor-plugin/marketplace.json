@@ -1,0 +1,16 @@
+{
+  "name": "skills",
+  "owner": {
+    "name": "Skills Team"
+  },
+  "metadata": {
+    "description": "Skills synced from Notion."
+  },
+  "plugins": [
+    {
+      "name": "agent-skill",
+      "source": "./plugins/agent-skill",
+      "description": "Skills synced from Notion."
+    }
+  ]
+}
