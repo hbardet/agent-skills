@@ -1,0 +1,16 @@
+{
+  "source": "notion",
+  "syncedBy": "notion-skills-github-sync",
+  "layoutVersion": 1,
+  "notion": {
+    "env": "prod",
+    "skillsDataSourceId": "40d901c1-90a1-80ed-ad69-000b4515f34b",
+    "pluginId": "a84efad1-ff22-4447-a481-09dcf7e152bc",
+    "url": "https://www.notion.so/p/a84efad1ff224447a48109dcf7e152bc",
+    "versionId": "3df1071f24584a118225bbf6d81ed08ffa534528f3c3841862e5535b58808301"
+  },
+  "plugin": {
+    "slug": "agent-skill",
+    "name": "agent-skill"
+  }
+}
