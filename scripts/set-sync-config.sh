@@ -26,6 +26,10 @@ for arg in "$@"; do
 done
 
 GH="${GH_BIN:-gh}"
+# gh honours GH_TOKEN/GITHUB_TOKEN, and load_env exports both — but the push
+# PAT is a *value we store*, not the credential that stores it. The secrets API
+# needs repo administration, which the fine-grained sync PAT deliberately lacks.
+gh() { env -u GH_TOKEN -u GITHUB_TOKEN "$GH" "$@"; }
 load_env "${ENV_FILE:-$ROOT/.env}"
 
 secret_names=( NOTION_API_TOKEN )
@@ -58,7 +62,7 @@ for i in "${!secret_names[@]}"; do
   if [[ $PRINT == 1 ]]; then
     echo "would set secret $name on $REPO"
   else
-    printf '%s' "${secret_values[i]}" | "$GH" secret set "$name" -R "$REPO" >/dev/null
+    printf '%s' "${secret_values[i]}" | gh secret set "$name" -R "$REPO" >/dev/null
     echo "set secret $name"
   fi
 done
@@ -67,7 +71,7 @@ for i in "${!var_names[@]}"; do
   if [[ $PRINT == 1 ]]; then
     echo "would set variable $name=${var_values[i]}"
   else
-    "$GH" variable set "$name" --body "${var_values[i]}" -R "$REPO" >/dev/null
+    gh variable set "$name" --body "${var_values[i]}" -R "$REPO" >/dev/null
     echo "set variable $name"
   fi
 done
