@@ -8,7 +8,7 @@
 //
 // Usage: bun scripts/seed-notion.ts [--dry-run] [--force] [--skip-existing]
 // Env:   NOTION_API_TOKEN, SKILLS_DATA_SOURCE_ID (read from .env by bun),
-//        NTN_BIN (executable, default `npx --yes ntn`), SKILLS_DIR (default `skills`).
+//        NTN_BIN (executable, default `npx --yes ntn`), SKILLS_DIR (default `test/fixtures/skills`).
 
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -23,7 +23,9 @@ const dryRun = argv.has("--dry-run");
 const force = argv.has("--force");
 
 const dataSourceId = process.env.SKILLS_DATA_SOURCE_ID ?? "";
-const skillsDir = process.env.SKILLS_DIR ?? "skills";
+// The live copy of the prose is the Notion row; these fixtures are the frozen
+// originals the rows were seeded from, kept so a reseed has a source.
+const skillsDir = process.env.SKILLS_DIR ?? "test/fixtures/skills";
 const ntn: string[] = process.env.NTN_BIN ? [process.env.NTN_BIN] : ["npx", "--yes", "ntn"];
 const hasCreds = Boolean(process.env.NOTION_API_TOKEN && dataSourceId);
 

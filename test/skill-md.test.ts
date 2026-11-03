@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { splitFrontmatter, skillProperties } from "../scripts/lib/skill-md";
 
 test("splits the real work-issue skill", () => {
-  const { data, body } = splitFrontmatter(readFileSync("skills/work-issue/SKILL.md", "utf8"));
+  const { data, body } = splitFrontmatter(readFileSync("test/fixtures/skills/work-issue/SKILL.md", "utf8"));
   expect(data.name).toBe("work-issue");
   expect(data.description.length).toBeGreaterThan(200);
   expect(body.startsWith("# Work issue")).toBe(true);
