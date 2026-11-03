@@ -12,6 +12,8 @@
 
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { reflowMarkdown } from "./lib/markdown-reflow";
+import { pickProperties, type SkillPropertyMap } from "./lib/notion-schema";
 import { skillProperties, splitFrontmatter } from "./lib/skill-md";
 
 type Row = { id: string; title: string };
@@ -43,13 +45,21 @@ function run(args: string[], input?: string) {
   return out;
 }
 
-function existingRows(): Row[] {
+const fallbackMap: SkillPropertyMap = { title: "Name", description: "Description", files: "Files", tags: "Tags" };
+
+function schema(): SkillPropertyMap {
+  if (!hasCreds) return fallbackMap;
+  const ds = JSON.parse(run(["api", `/v1/data_sources/${dataSourceId}`])) as { properties?: Record<string, { type?: string }> };
+  return pickProperties(ds.properties ?? {});
+}
+
+function existingRows(map: SkillPropertyMap): Row[] {
   if (!hasCreds) return [];
   const out = run(["datasources", "query", dataSourceId, "--json", "--limit", "100"]);
   const json = JSON.parse(out) as { results?: any[] };
   return (json.results ?? []).map((row) => ({
     id: row.id as string,
-    title: (row.properties?.Name?.title ?? []).map((t: any) => t.plain_text ?? "").join(""),
+    title: (row.properties?.[map.title]?.title ?? []).map((t: any) => t.plain_text ?? "").join(""),
   }));
 }
 
@@ -62,7 +72,8 @@ const local = readdirSync(skillsDir, { withFileTypes: true })
   })
   .sort((a, b) => a.title.localeCompare(b.title));
 
-const rows = existingRows();
+const map = schema();
+const rows = existingRows(map);
 if (!hasCreds) console.error("# no NOTION_API_TOKEN — assuming an empty database");
 
 for (const skill of local) {
@@ -73,21 +84,24 @@ for (const skill of local) {
   }
   if (hit) console.log(`archive ${skill.title} (${hit.id}) — --force`);
 
-  const markdown = `---\ntitle: ${skill.title}\n---\n\n${skill.body}\n`;
-  console.log(`create ${skill.title} (body ${skill.body.length} chars, description ${skill.description.length} chars)`);
+  // One line per paragraph: the Notion importer makes a block per source line.
+  const markdown = `---\ntitle: ${skill.title}\n---\n\n${reflowMarkdown(skill.body)}`;
+  console.log(`create ${skill.title} (body ${markdown.length} chars after reflow, description ${skill.description.length} chars)`);
 
   if (dryRun) {
-    console.log(`  ${ntn.join(" ")} pages create --parent data-source:$SKILLS_DATA_SOURCE_ID --content <md ${markdown.length} chars> --json`);
+    console.log(`  ${ntn.join(" ")} pages create --parent data-source:$SKILLS_DATA_SOURCE_ID --json  (markdown ${markdown.length} chars on stdin)`);
     console.log(`  ${ntn.join(" ")} api v1/pages/<id> -X PATCH -d @properties.json`);
     continue;
   }
 
   if (hit) {
-    run(["api", `v1/pages/${hit.id}`, "-X", "PATCH", "-d", JSON.stringify({ archived: true })]);
+    run(["api", `v1/pages/${hit.id}`, "-X", "PATCH", "-d", JSON.stringify({ in_trash: true })]);
   }
 
+  // `--content` rejects a value that starts with `---` (frontmatter would be parsed as
+  // flags), so the markdown always goes in on stdin.
   const created = JSON.parse(
-    run(["pages", "create", "--parent", `data-source:${dataSourceId}`, "--content", markdown, "--json"]),
+    run(["pages", "create", "--parent", `data-source:${dataSourceId}`, "--json"], markdown),
   ) as { id?: string; url?: string };
   const pageId = created.id;
   if (!pageId) throw new Error(`pages create returned no id for ${skill.title}`);
@@ -100,9 +114,9 @@ for (const skill of local) {
     "-d",
     JSON.stringify({
       properties: {
-        Name: { title: [{ text: { content: skill.title } }] },
-        Description: { rich_text: [{ text: { content: skill.description } }] },
-        Tags: { multi_select: [{ name: "agent-skill" }] },
+        [map.title]: { title: [{ text: { content: skill.title } }] },
+        [map.description]: { rich_text: [{ text: { content: skill.description } }] },
+        [map.tags]: { multi_select: [{ name: "agent-skill" }] },
       },
     }),
   ]);

@@ -50,7 +50,7 @@ Do not move to filing until every item has been debated.
 
 After the last item, present one table for the whole batch:
 
-```
+```markdown
 | # | Title | Kind |
 |---|-------|------|
 | 1 | ...   | feature |

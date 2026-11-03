@@ -122,3 +122,16 @@ variables, and the fork's `sync.yml` runs it hourly. See
 | token works, no rows | connection added to a different database, or the rows are children of a page it cannot see |
 | skills missing from the plugin | the row is outside the connection's scope, or its `Name` is empty (`notion-sync.sh dry-run` lists what the sync sees) |
 | body lost its code fences | paste as code blocks, not as inline text; `notion-sync.sh dry-run` shows the rendered `SKILL.md` |
+
+## Known renderer differences
+
+Verified on 2026-11-03 against the published `agent-skill` plugin (both skills render
+identical to their source, ignoring line wrapping):
+
+- **The row title is the skill name, so a leading `# Heading` is not part of the body.** The
+  name lives in the frontmatter block the sync generates.
+- **Line wrapping is lost.** A Notion paragraph is a single line, so the seed script reflows the
+  body first (`scripts/lib/markdown-reflow.ts`): one line per paragraph, per list item, per
+  blockquote; code fences, tables and headings stay as they are.
+- **An unlabelled code fence may gain an inferred language** (` ``` ` → ` ```javascript `). Label
+  fences (` ```markdown `, ` ```bash `) when the content is not the inferred language.
