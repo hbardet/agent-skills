@@ -51,9 +51,13 @@ owner.
 ## 3. Get the data source id
 
 ```bash
-npx --yes ntn login            # once, opens a browser; write access for seeding
+set -a; . ./.env; set +a       # so ntn picks up NOTION_API_TOKEN
 npx --yes ntn datasources resolve <database-id>
 ```
+
+(`npx --yes ntn login` opens a browser session instead — optional. Seeding works with
+the connection token above, because an internal connection can create pages in the
+databases it is shared with.)
 
 The `<database-id>` is the 32-hex string in the database URL. Put the returned id in
 `.env` as `SKILLS_DATA_SOURCE_ID`.
