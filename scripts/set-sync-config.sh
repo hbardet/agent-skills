@@ -35,6 +35,10 @@ secret_values=( "${NOTION_API_TOKEN:-}" )
 
 var_names=( SKILLS_GITHUB_REPO SKILLS_GITHUB_BRANCH NOTION_ENV SKILLS_DATA_SOURCE_ID GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL )
 var_values=( "${GITHUB_REPO:-}" "${GITHUB_BRANCH:-}" "${NOTION_ENV:-prod}" "${SKILLS_DATA_SOURCE_ID:-}" "${GIT_AUTHOR_NAME:-my-skills}" "${GIT_AUTHOR_EMAIL:-my-skills@users.noreply.github.com}" )
+if [[ -n "${SYNC_IGNORE_PLUGINS:-}" ]]; then
+  var_names+=( SYNC_IGNORE_PLUGINS )
+  var_values+=( "$SYNC_IGNORE_PLUGINS" )
+fi
 if [[ -n "${GITHUB_APP_ID:-}" ]]; then
   var_names+=( SKILLS_GITHUB_APP_ID )
   var_values+=( "$GITHUB_APP_ID" )

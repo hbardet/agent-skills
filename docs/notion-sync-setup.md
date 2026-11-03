@@ -135,3 +135,14 @@ identical to their source, ignoring line wrapping):
   blockquote; code fences, tables and headings stay as they are.
 - **An unlabelled code fence may gain an inferred language** (` ``` ` → ` ```javascript `). Label
   fences (` ```markdown `, ` ```bash `) when the content is not the inferred language.
+
+## What a sync publishes
+
+Everything the connection can see, minus `SYNC_IGNORE_PLUGINS`. Notion's own
+`notion-skills-updater` plugin is visible to every connection, hence the default
+`SYNC_IGNORE_PLUGINS=notion-skills-updater` in `.env.example`.
+
+The plugin directory name (the slug) comes from the plugin name, which follows the
+connection you created in step 2 — ours is `agent-skill`, so skills land in
+`plugins/agent-skill/skills/<name>/`. The sync also writes `.claude-plugin/`,
+`.cursor-plugin/` and `.agents/plugins/marketplace.json` manifests.
