@@ -1,0 +1,10 @@
+{
+  "name": "agent-skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent skills published from a Notion skills database; consumable as a Pi package.",
+  "keywords": ["pi-package", "agent-skills"],
+  "pi": {
+    "skills": ["./plugins/*/skills/*"]
+  }
+}

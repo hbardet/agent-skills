@@ -9,6 +9,24 @@ Portable skills for the two ends of a superpowers-based dev workflow:
 
 Neither skill modifies superpowers. Both invoke them.
 
+## Use it from Pi
+
+The repo is also a [Pi package](https://pi.dev/packages): `package.json` declares
+`pi.skills = ["./plugins/*/skills/*"]`, so every published skill is one package resource.
+
+```bash
+pi install git:github.com/hbardet/agent-skills   # tracked, updated with pi update --extensions
+pi -e git:github.com/hbardet/agent-skills        # or try it for one invocation, no settings change
+```
+
+`pi install` writes to `~/.pi/agent/settings.json`; `-l` writes the declaration to `.pi/settings.json`
+for the project instead. The Claude plugin files (`.claude-plugin/`, `.agents/plugins/`) are ignored by
+Pi — it reads the manifest, not the marketplace.
+
+Two things to watch: the fifteen `obra/superpowers` skills published here **collide by name** with the
+upstream package if you have both installed (Pi keeps the first discovered and warns), and the `shared/`
+prose is not reachable from a cloned package (`../shared/` would need to be inside the skill directory).
+
 ## Where the skills live
 
 **Notion is the source of truth.** Both skills are rows in the *Skills* database on the
