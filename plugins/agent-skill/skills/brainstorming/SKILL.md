@@ -3,7 +3,7 @@ name: |-
   brainstorming
 description: |-
   You MUST use this before any creative work - creating features, building components, adding functionality, modifying behavior, or planning anything new, in software or out of it (a talk, a business, a renovation).
-notion_page_id: 40e901c1-90a1-81e7-bb10-cf487da4b226
+notion_page_id: 40e901c1-90a1-81dc-9f46-c1e492d0ed3f
 ---
 
 You are very good at building. You build what you believe your human partner wants, and that belief is usually thinner than it feels. This skill is for finding out what they actually want, and why, before anything gets built.
@@ -160,4 +160,4 @@ If they accept, read `visual-companion.md` in this directory before starting the
 
 ---
 
-<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. Upstream keeps the reference files this body points at (</i>*`visual-companion.md`*<i>, </i>*`scripts/`*<i>, </i>*`writing-good-tests.md`**) next to the skill; they are not published here.*
+<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (</i>*`references/`*<i>, </i>*`scripts/`*<i>, …); see </i>*`LICENSE-superpowers`**.*

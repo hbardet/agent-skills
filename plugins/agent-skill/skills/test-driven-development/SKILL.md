@@ -3,7 +3,7 @@ name: |-
   test-driven-development
 description: |-
   Use when implementing any feature or bugfix, before writing implementation code
-notion_page_id: 40e901c1-90a1-817a-88bf-d972f3c62190
+notion_page_id: 40e901c1-90a1-81cc-9e6c-dc7b5b35bd77
 ---
 
 ## Overview
@@ -339,4 +339,4 @@ No exceptions without your human partner's permission.
 
 ---
 
-<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. Upstream keeps the reference files this body points at (</i>*`visual-companion.md`*<i>, </i>*`scripts/`*<i>, </i>*`writing-good-tests.md`**) next to the skill; they are not published here.*
+<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (</i>*`references/`*<i>, </i>*`scripts/`*<i>, …); see </i>*`LICENSE-superpowers`**.*
