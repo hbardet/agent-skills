@@ -13,6 +13,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { reflowMarkdown } from "./lib/markdown-reflow";
+import { createZip, type ZipEntry } from "./lib/zip";
 import { pickProperties, type SkillPropertyMap } from "./lib/notion-schema";
 import { skillProperties, splitFrontmatter } from "./lib/skill-md";
 
@@ -47,6 +48,58 @@ function run(args: string[], input?: string) {
   return out;
 }
 
+// Everything in the skill's directory except SKILL.md travels as one zip in the
+// row's files property; the sync expands a lone zip in place, which is how a
+// skill's scripts/ and references/ survive the round trip.
+function extraFiles(dir: string): ZipEntry[] {
+  const out: ZipEntry[] = [];
+  const walk = (rel: string) => {
+    for (const entry of readdirSync(rel ? join(dir, rel) : dir, { withFileTypes: true })) {
+      const path = rel ? `${rel}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(path);
+      else if (path !== "SKILL.md") out.push({ path, data: readFileSync(join(dir, path)) });
+    }
+  };
+  walk("");
+  return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+const NOTION_VERSION = "2025-09-03";
+
+async function attachZip(pageId: string, name: string, bytes: Uint8Array, filesProperty: string) {
+  const token = process.env.NOTION_API_TOKEN ?? "";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Notion-Version": NOTION_VERSION,
+    "Content-Type": "application/json",
+  };
+  const create = await fetch("https://api.notion.com/v1/file_uploads", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ mode: "single_part", filename: name, content_type: "application/zip" }),
+  });
+  if (!create.ok) throw new Error(`file_uploads: ${create.status} ${await create.text()}`);
+  const upload = (await create.json()) as { id: string; upload_url: string };
+
+  const form = new FormData();
+  form.append("file", new Blob([bytes], { type: "application/zip" }), name);
+  const send = await fetch(upload.upload_url, {
+    method: "POST",
+    headers: { Authorization: headers.Authorization, "Notion-Version": NOTION_VERSION },
+    body: form,
+  });
+  if (!send.ok) throw new Error(`file_uploads send: ${send.status} ${await send.text()}`);
+
+  const patch = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({
+      properties: { [filesProperty]: { files: [{ type: "file_upload", file_upload: { id: upload.id } }] } },
+    }),
+  });
+  if (!patch.ok) throw new Error(`attach to ${pageId}: ${patch.status} ${await patch.text()}`);
+}
+
 const fallbackMap: SkillPropertyMap = { title: "Name", description: "Description", files: "Files", tags: "Tags" };
 
 function schema(): SkillPropertyMap {
@@ -68,9 +121,10 @@ function existingRows(map: SkillPropertyMap): Row[] {
 const local = readdirSync(skillsDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => {
-    const file = join(skillsDir, entry.name, "SKILL.md");
+    const dir = join(skillsDir, entry.name);
+    const file = join(dir, "SKILL.md");
     const { data, body } = splitFrontmatter(readFileSync(file, "utf8"));
-    return { file, body, ...skillProperties(data) };
+    return { file, dir, body, extras: extraFiles(dir), ...skillProperties(data) };
   })
   .sort((a, b) => a.title.localeCompare(b.title));
 
@@ -88,7 +142,11 @@ for (const skill of local) {
 
   // One line per paragraph: the Notion importer makes a block per source line.
   const markdown = `---\ntitle: ${skill.title}\n---\n\n${reflowMarkdown(skill.body)}`;
-  console.log(`create ${skill.title} (body ${markdown.length} chars after reflow, description ${skill.description.length} chars)`);
+  const extras = skill.extras.length > 0 ? createZip(skill.extras) : undefined;
+  console.log(
+    `create ${skill.title} (body ${markdown.length} chars after reflow, description ${skill.description.length} chars` +
+      (extras ? `, ${skill.extras.length} file(s) in a ${extras.length}-byte zip)` : ")"),
+  );
 
   if (dryRun) {
     console.log(`  ${ntn.join(" ")} pages create --parent data-source:$SKILLS_DATA_SOURCE_ID --json  (markdown ${markdown.length} chars on stdin)`);
@@ -122,6 +180,9 @@ for (const skill of local) {
       },
     }),
   ]);
+  if (extras) {
+    await attachZip(pageId, `${skill.title}.zip`, extras, map.files);
+  }
   console.log(`  ${created.url ?? pageId}`);
 }
 

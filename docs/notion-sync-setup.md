@@ -163,3 +163,21 @@ connection you created in step 2 — ours is `agent-skill`, so skills land in
 The surprise: Notion shows the database in your workspace language — ours is French, so the title
 property is `Nom de la skill` and the files property `Fichiers`. `scripts/lib/notion-schema.ts`
 resolves them by type, so a rename or a locale change cannot break the pipeline.
+
+## Carrying a skill's extra files
+
+A row holds one page body plus whatever sits in its `files` property. Notion renders the body into
+`SKILL.md`; a **lone `.zip` attachment is expanded in place** by the sync, so a skill's `scripts/`
+and `references/` survive as real directories. Several zips, or a zip next to loose files, are left
+as-is — one zip per skill.
+
+`bun scripts/seed-notion.ts` does this for you: everything in the skill directory except `SKILL.md`
+is zipped (STORE, no compression, byte-stable — `scripts/lib/zip.ts`) and attached, with the upload
+going through `/v1/file_uploads` + `/v1/file_uploads/<id>/send`.
+
+Two consequences worth knowing:
+
+- **File modes are not preserved.** Git Data API writes arrive as `100644`, so `scripts/*.sh` land
+  without the executable bit; call them as `bash script.sh` or `chmod +x` after installing.
+- **The zip stays in Notion, the expansion happens in the sync.** Fetching the plugin tarball from
+  Notion directly gives you `<skill>/<name>.zip`; only the published repo has the expanded tree.
