@@ -3,9 +3,10 @@
 File: `.agent-skills/config.json` at the repo root. Gitignored by default; the user can commit it
 to share the conventions with the team.
 
-Created on first run by asking the user a handful of questions. Both skills read it instead of
-asking again. If it is missing, the skills fall back to detection + `AGENTS.md` and offer to
-create it.
+Created on first run by asking the user a handful of questions. Both skills read the project's
+`AGENTS.md` first, then this file: an explicit tracker, label vocabulary or verification command in
+`AGENTS.md` wins, and these answers fill whatever it leaves open. If both are missing, the skills
+fall back to detection and offer to create this file.
 
 ## Schema
 
@@ -31,12 +32,13 @@ create it.
 }
 ```
 
-- `stateDir` — root for disposable state **outside the project repo**. The spec is not written
-  here: the spec is the tracker issue body, read from the tracker.
+- `stateDir` — root for disposable state **outside the project repo**. Neither the spec nor the
+  plan is written here as an original: both are documents attached to the tracker issue, and the
+  design is not kept locally at all.
 - `plansDir` — the disposable local copy of the plan, because superpowers' scripts require a file
-  path. `work-issue` writes `YYYY-MM-DD-<slug>.md` here, posts the same plan as a comment on the
-  issue, and re-reads the comment before each task. Never committed; the issue comment is the
-  source of truth.
+  path. `writing-plans` writes `YYYY-MM-DD-<slug>.md` here after attaching the plan to the issue;
+  `work-issue` refreshes it from the issue before each task and syncs edits back. Never committed;
+  the issue's plan document is the source of truth.
 - `labels` — `status::` and `kind::` only. No size, area, or dependency labels. Ordering and
   blocking go in the issue body under **Notes**.
 - `language` — the language for issue **titles and bodies**. Default `en`. The original wording
@@ -46,7 +48,8 @@ create it.
 
 ## First-run questions
 
-1. Which tracker? (detected from `git remote -v`; confirm.)
+1. Which tracker? (`AGENTS.md` states it when the project pins one; otherwise `git remote -v`;
+   confirm before filing anything.)
 2. What is the default branch? (detected from `git symbolic-ref refs/remotes/origin/HEAD`.)
 3. Does the repo have a test runner? If yes, what command? If no, what command(s) prove a change
    works (build, lint, typecheck, manual browser check)?

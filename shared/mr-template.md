@@ -12,8 +12,8 @@ skill offer once to commit this file.
 
 ## How
 
-<!-- The approach, in broad strokes. Reference the plan if there is one:
-     docs/superpowers/plans/<file>.md -->
+<!-- The approach, in broad strokes. Reference the plan document on the
+     issue (artifact or marker comment) if there is one. -->
 
 ## Verification
 
