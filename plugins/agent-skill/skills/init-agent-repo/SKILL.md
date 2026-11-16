@@ -6,6 +6,8 @@ description: |-
 notion_page_id: 41a901c1-90a1-8171-b193-f48082a89d99
 ---
 
+# Init agent repo
+
 Every later skill — `batch-features`, `brainstorming`, `writing-plans`, `work-issue` — starts by reading `AGENTS.md`. If it is missing or vague, each of them re-discovers the same facts, badly, on every run. This skill writes those facts down once.
 
 The output is four files and a label vocabulary. Not a template zoo, not aspirational rules the project does not follow.
@@ -78,7 +80,7 @@ graphify query "what depends on src/core" --budget 800
 
 - `--code-only` reads the code with local AST extraction and needs no key. A plain `graphify .` also reads docs, papers and images semantically, and stops with "no LLM API key found" unless `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `MOONSHOT_API_KEY` or `DEEPSEEK_API_KEY` is set. Use the key when the docs carry half the architecture; otherwise `--code-only`.
 - **Community hubs become your rows.** `GRAPH_REPORT.md` lists them under *Community Hubs (Navigation)* — one row per hub with its folder, role and entry point. Confirm each **Depends on** cell with `graphify query` or `graphify explain <part>`, never from a filename.
-- **Keep the graph out of the repo.** `graphify-out/` is regenerable: add it to `.gitignore` and paste only the distilled table into `AGENTS.md`. The report records the commit it was built from (<i>Built from commit </i>*`<sha>`*), and `graphify update .` re-extracts just the changed files at no API cost — name that command next to the table so the next agent knows how to refresh it.
+- **Keep the graph out of the repo.** `graphify-out/` is regenerable: add it to `.gitignore` and paste only the distilled table into `AGENTS.md`. The report records the commit it was built from in its `Built from commit` line, and `graphify update .` re-extracts just the changed files at no API cost — name that command next to the table so the next agent knows how to refresh it.
 - Want a picture? `graphify . --svg` writes a `graph.svg` that renders on GitHub and GitLab, and `graphify --wiki` writes `docs/architecture/index.md` plus one article per community. The default HTML output is for looking at once, not for committing.
 
 Either way the section is a table first:
@@ -100,30 +102,6 @@ graph LR cli --> core api --> core core --> store
 ```javascript
 
 ```
-
-Never draw an edge you have not read in the imports of both ends, and do not install a mapper just for this page: `madge`, `pydeps`, `cargo modules` and `go mod graph` only earn a mention when the project already runs one. A wrong diagram is worse than a table.
-
-## The other files
-
-| File | GitLab | GitHub | Content |
-| --- | --- | --- | --- |
-| Agent rules | `AGENTS.md` | `AGENTS.md` | the eight sections above |
-| Human guide | `CONTRIBUTING.md` | `CONTRIBUTING.md` | setup, run, test, branch and review etiquette, label meanings, one line pointing to `AGENTS.md` |
-| Issue template | `.gitlab/issue_templates/feature.md` | `.github/ISSUE_TEMPLATE/feature.md` | from `shared/issue-template.md`, rendered into the project's language |
-| MR/PR template | `.gitlab/merge_request_templates/default.md` | `.github/pull_request_template.md` | from `shared/mr-template.md` |
-| Workflow config | `.agent-skills/config.json` | same | from `shared/config.md`, filled with the answers: tracker, default branch, verification commands, label sets, `issueTemplate`, `mrTemplate` |
-
-Rules for all five:
-
-- **Merge, never clobber.** If a file exists, show the diff you would apply and keep every existing section nobody asked you to remove. An existing project template beats `shared/`'s — record its path in the config instead of replacing it.
-- **No duplication.** `AGENTS.md` is the source. `CONTRIBUTING.md` is the human summary and links to it rather than restating it.
-- <b>Keep </b>**`AGENTS.md`**<b> readable in one sitting</b> — roughly 250 lines. Depth goes in `docs/agents/*.md` with a one-line pointer from `AGENTS.md`.
-- **Only rules the project actually follows.** Check the last 20 commits before writing a commit convention. If the repo has no test suite, section 6 says so and names the manual check; it does not promise tests that do not exist.
-- Write in the language of `config.language` (default `en`). Quote the user's own wording where they gave it.
-
-## Labels
-
-The vocabulary is `shared/labels.md`: one `status::` and one `kind::` per issue. List the ones the tracker actually has, mark any that are missing, and offer once to create them:
 
 ```bash
 gh label create "status::ready" --color "428BCA"        # GitHub
