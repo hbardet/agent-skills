@@ -2,7 +2,7 @@
 name: |-
   writing-plans
 description: |-
-  Use when you have a spec or requirements for a multi-step task, before touching code
+  Use when you have a spec or requirements for a multi-step task, before touching code. Writes the implementation plan as a document attached to the tracker issue (a GitHub issue artifact, or a comment on the GitLab work item) plus a disposable local copy outside the repo, never as a file committed to the project.
 notion_page_id: 40e901c1-90a1-819b-a5f7-f5629977fdb3
 ---
 
@@ -16,9 +16,13 @@ Write implementation plans for an engineer who has not seen this codebase or thi
 
 **Context:** If working in an isolated worktree, it should have been created via the `superpowers:using-git-worktrees` skill at execution time.
 
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+**Read the spec first.** It is a document attached to the tracker issue, not a file: `gh issue artifact list <n> --json number,title` then `gh issue artifact view <n> <artifact-number>` on GitHub, or the GitLab note whose body starts with `<!-- agent-skills:spec -->`. The issue body is only a description. If no issue exists, stop and run `superpowers:brainstorming` — the spec comes from there.
 
-- (User preferences for plan location override this default)
+**Save plans to:** the issue, never the project repo.
+
+- **The tracker copy is the plan.** GitHub: `gh issue artifact create <n> --type plan --name plan --body-file <plan.md>`. GitLab: a comment whose first line is `<!-- agent-skills:plan -->`. This is what your human partner reviews and edits, and what `work-issue` and any later machine reads.
+- **The local copy is scratch.** `plansDir` from `.agent-skills/config.json` (`~/.agent-skills/state/<owner>/<repo>/plans/YYYY-MM-DD-<slug>.md`), because `executing-plans` and the subagent scripts need a file path. Write it after attaching, refresh it from the tracker before continuing, never commit it.
+- Commands for both trackers are in `shared/tracker-adapter.md`. If the project has no tracker, ask where the plan goes — never fall back to committing it into the repo.
 
 ## Scope Check
 
@@ -64,8 +68,7 @@ A task is the smallest unit that carries its own test cycle and is worth a fresh
 
 **Tech Stack:** [Key technologies/libraries]
 
-**Spec:** [path to the spec/design doc this plan implements — the plan
-argues from the spec, so the spec travels with it; executors read both]
+**Spec:** [GitLab issue #<n> / GitHub issue #<n> and its URL — the spec is a document attached to that issue, not a file; the plan argues from it, so executors read both]
 
 ## Global Constraints
 
@@ -168,11 +171,11 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving and self-reviewing the plan, link it for your human partner to read. If they have already explicitly supplied an execution method, ask them to review the plan and confirm it captures what they want; wait for that review before implementation, then use the preserved method. Otherwise, ask them to review the plan and choose an execution method before implementation.
+After attaching and self-reviewing the plan, link the issue for your human partner to read. If they have already explicitly supplied an execution method, ask them to review the plan and confirm it captures what they want; wait for that review before implementation, then use the preserved method. Otherwise, ask them to review the plan and choose an execution method before implementation.
 
 **When no execution method has already been supplied:**
 
-<b>"Plan complete and saved to </b>**`docs/superpowers/plans/<filename>.md`****. Please review the plan. Which execution approach would you prefer?**
+\<b>"Plan complete and attached to \<issue URL> as the plan document (local copy at `<plansDir>/<filename>`). Please review it there — the issue document is the one that counts. Which execution approach would you prefer?"\</b>
 
 - **Subagent-driven** - A fresh subagent implements each task and a fresh reviewer checks it before the next one starts, then a whole-branch review at the end. Most thorough; costs a fresh context per task and per review.
 - **Native** - I implement every task myself in this session, the way this harness runs work, then one fresh reviewer on the most capable model checks the whole branch. Cheapest and fastest; no independent review until the end. Runs well with a mid-tier session model, since the plan carries the design.
@@ -181,7 +184,7 @@ After saving and self-reviewing the plan, link it for your human partner to read
 
 **When an execution method has already been supplied:**
 
-<b>"Plan complete and saved to </b>**`docs/superpowers/plans/<filename>.md`****. Please review the plan. Does it capture what you want?"**
+\<b>"Plan complete and attached to \<issue URL> as the plan document (local copy at `<plansDir>/<filename>`). Please review it there — the issue document is the one that counts. Does it capture what you want?"\</b>
 
 **If Subagent-driven chosen:**
 
@@ -193,4 +196,4 @@ After saving and self-reviewing the plan, link it for your human partner to read
 
 ---
 
-<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (</i>*`references/`*<i>, </i>*`scripts/`*<i>, …); see </i>*`LICENSE-superpowers`**.*
+\<i>Copied from \</i>[*obra/superpowers*](https://github.com/obra/superpowers)\<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (\</i>*`references/`*\<i>, \</i>*`scripts/`*\<i>, …); see \</i>*`LICENSE-superpowers`**.*

@@ -2,7 +2,7 @@
 name: |-
   brainstorming
 description: |-
-  You MUST use this before any creative work - creating features, building components, adding functionality, modifying behavior, or planning anything new, in software or out of it (a talk, a business, a renovation).
+  You MUST use this before any creative work - creating features, building components, adding functionality, modifying behavior, or planning anything new, in software or out of it (a talk, a business, a renovation). Ends by filing the design as a tracker issue (GitHub or GitLab) with the full design attached as a spec document, never as a file in the repo.
 notion_page_id: 40e901c1-90a1-81dc-9f46-c1e492d0ed3f
 ---
 
@@ -22,7 +22,8 @@ Before you start implementing, you must, in order:
 1. Lay out the approaches in a message of their own, and have your human partner pick one (see Lay out the approaches).
 2. Write the design doc, short or full (see Size the Work).
 3. Get their approval of that doc.
-4. Invoke the superpowers:writing-plans skill.
+4. File it on the tracker, with the design attached as the issue's spec document (see Where it goes).
+5. Invoke the superpowers:writing-plans skill.
 
 Two things aren't implementing: a spike they said yes to (see Spike to feel things out), and doing what they asked once they've opted out of the questions.
 
@@ -115,9 +116,16 @@ Write a plain document a talented builder in the domain could plan from without 
 - the parts of the how they decided, as they decided them
 - what's left to the builder
 
-For a small change, the short design covers the same points in a line or two each and goes straight to your human partner, without the builder check.
+For a small change, the short design covers the same points in a line or two each and goes straight to your human partner, without the builder check. It still gets an issue: the issue is cheaper than remembering.
 
-**Where it goes:** in a software repo, `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`, committed. Otherwise, ask. Your human partner's preferences override both.
+**Where it goes:** on the tracker, never in the project repo. The issue is the home: its body is a short description, and the design travels as a document attached to it.
+
+1. Detect the tracker and the label vocabulary — the project's `AGENTS.md` first, then `.agent-skills/config.json`, then `shared/labels.md` for defaults. The commands are in `shared/tracker-adapter.md`; use those, do not reinvent them.
+2. File the issue: title in the user's language, body from the project's own issue template (`.gitlab/issue_templates/*.md`, `.github/ISSUE_TEMPLATE/*.md`) or `shared/issue-template.md` when it has none, one `status::` label and one `kind::` label. The design is approved, so that status is `ready`.
+3. Attach the design as the issue's **spec** document: `gh issue artifact create <n> '<file>#design'` on GitHub, a comment marked `<!-- agent-skills:spec -->` on GitLab. A long design lives here; the body stays short. Draft it in a scratch file under `stateDir` (the CLIs take a path or stdin); the attachment, not the scratch file, is the record.
+4. Report the issue URL. It is the approval record, and it is what `writing-plans` attaches the plan to.
+
+If the work already has an issue — the user pasted one, or `work-issue` sent you here — attach the design to that issue instead of filing another.
 
 **Builder check** (for a project): dispatch a fresh subagent with `builder-check-prompt.md` in this directory. When you tell your human partner you're writing it up, say a reviewer will read it first and you may come back once with a few questions. Don't hand over the document until the check is back. Sort what the builder asks into three piles:
 
@@ -131,7 +139,7 @@ Bring the "theirs" pile in one message, most important first. Update the documen
 
 Two exceptions. If they opted out of the questions, the skill is done and the gate goes with it. A spike they said yes to may be built; it stays labeled throwaway, and keeping what it produced is a new request that comes back through this gate.
 
-After the design doc is approved, the next step is the plan: invoke superpowers:writing-plans and no other skill. \</HARD-GATE>
+After the design doc is approved, file it on the tracker and attach it as the spec (see Where it goes), then invoke superpowers:writing-plans and no other skill; that skill attaches the plan to the same issue. \</HARD-GATE>
 
 ## Red Flags
 
@@ -143,6 +151,8 @@ After the design doc is approved, the next step is the plan: invoke superpowers:
 | "I should explain the process first" | Ask your question. The process shows itself. |
 | "They said 'sounds good' to the idea" | Approval covers what you showed them. A design doc you haven't written isn't approved. |
 | "The spike works, I'll keep building on it" | Keeping it is a new request. Back through the gate. |
+| "I'll commit the design to `docs/` so it can be reviewed" | The issue is the review surface. A repo file is on one machine and gitignored on the next. |
+| "The issue is only worth it for a real project" | Every change gets one: it is the plan's anchor and the PR closes it. |
 
 ## Visual Companion
 
@@ -160,4 +170,4 @@ If they accept, read `visual-companion.md` in this directory before starting the
 
 ---
 
-<i>Copied from </i>[*obra/superpowers*](https://github.com/obra/superpowers)<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (</i>*`references/`*<i>, </i>*`scripts/`*<i>, …); see </i>*`LICENSE-superpowers`**.*
+\<i>Copied from \</i>[*obra/superpowers*](https://github.com/obra/superpowers)\<i> (MIT © Jesse Vincent), synced 2026-11-04. The files this body refers to travel with it (\</i>*`references/`*\<i>, \</i>*`scripts/`*\<i>, …); see \</i>*`LICENSE-superpowers`**.*
