@@ -32,6 +32,12 @@ local copy outside the repo** that superpowers' scripts can read. The repo gets 
 verification path, stop and ask the user before doing anything. A thin spec goes back through
 `superpowers:brainstorming`; rewriting it here is your call to make only if the user asks.
 
+**Orient before you open files.** The architecture table in `AGENTS.md` is the map; the graph is
+how you get from a part to a path. If `graphify-out/graph.json` exists,
+`graphify query "<the part the plan touches>" --budget 800` and `graphify explain <symbol>` to
+find the files a task touches before you read them. No graph: grep, and say in your report that the repo
+would benefit from `graphify . --code-only` (or from running `init-agent-repo`).
+
 **Claim the issue.** Set `status::in-progress` and assign it to the current user if the tracker
 supports it. Refuse if the issue already has `status::in-progress`.
 

@@ -58,12 +58,12 @@ Be clear and concise. Lead with what matters. Avoid jargon. When you report what
 - why now, and what success looks like to them
 - goals, non-goals, and anti-goals (what would make this a failure even if it technically works)
 - prior art: what they've seen elsewhere, loved or hated
-- current state: what exists now, what they've tried
+- current state: what exists now, what they've tried — `graphify query` answers much of this when the project has a graph
 - the details they care about
 
 **Make every question specific** to their project and what they've told you. Ask Socratically, the way a sharp colleague would: build each question on their last answer or on something you found, so it helps them think through a consequence or a case they may have missed ("Voting closes before the meeting, and two members joined this month. Does someone who joins mid-round get a vote?"). When the reason isn't already plain, say what you're hoping to learn or what the answer would change. A proposal they can correct, plus your reason for it, often beats a question.
 
-**Offer recon.** Once you have a bit of grounding and looking further would help, offer to go look: deeper into their codebase or project, their own files and data, or the web. Say what you'd look for. They decide whether you go.
+**Offer recon.** Once you have a bit of grounding and looking further would help, offer to go look: deeper into their codebase or project, their own files and data, or the web. Say what you'd look for. They decide whether you go. When they say yes and the project has a graph (`graphify-out/graph.json`), query it instead of grepping: `graphify query "<the area they named>" --budget 800`, then read the files it returns. It is the cheapest way into a codebase you have never opened, and it is the thing `init-agent-repo` set up for exactly this.
 
 **Lay out the approaches.** Once you understand what they want, and before you write anything up, put the ways of building it in a message of its own. Come up with several real alternatives and drop the weak ones, including any that work against why they want it and any the existing work rules out. Present the two or three that remain, grounding each in what the project actually does and saying what it trades off. Recommend one and say why, then ask which way they want to go. When there's genuinely one sensible way, say so and explain why the others don't fit. This is for how it gets built; for what they want, get them describing first.
 
